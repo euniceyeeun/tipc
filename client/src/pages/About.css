@@ -1,0 +1,36 @@
+#about-container {
+  font-size: 4.1vw;
+  line-height: 1.2em;
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-right: 100px;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#contact-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding-bottom: 20px;
+  padding-left: 20px;
+  font-size: 12px;
+}
+
+#about-image {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  padding: 50px;
+}
+
+#about-image img {
+  width: 200px;
+  transition: filter 0.4s ease-in;
+}
+
+#about-image img:hover {
+  filter: blur(10px);
+  cursor: pointer;
+}

@@ -1,0 +1,10 @@
+.site-name {
+  padding-top: 20px;
+  padding-left: 20px;
+  z-index: 1;
+  width: fit-content;
+  position: fixed;
+  opacity: 50%;
+  filter: blur(0);
+  transition: filter 0.4s ease-in, opacity 0.4s ease-in;
+}

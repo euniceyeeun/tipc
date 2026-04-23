@@ -1,0 +1,29 @@
+.nav-bar {
+  top: 0;
+  width: 100%;
+  position: absolute;
+  height: 50px;
+  padding-top: 20px;
+  padding-left: 25px;
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 30px;
+  transform-origin: right top;
+  transform: rotate(90deg) translateX(100%);
+}
+
+.nav-item {
+  filter: blur(0);
+  transition: filter 0.4s ease-in, opacity 0.4s ease-in;
+  font-size: 14px;
+}
+
+.nav-item:hover {
+  filter: blur(3px);
+  cursor: pointer;
+}
+
+.nav-bar a.active {
+  filter: blur(1px);
+  opacity: 0.5;
+}

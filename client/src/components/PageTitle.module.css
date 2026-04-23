@@ -1,0 +1,4 @@
+.site-name:hover {
+  filter: blur(3px);
+  cursor: pointer;
+}

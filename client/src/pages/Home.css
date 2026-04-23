@@ -1,0 +1,8 @@
+#home-container {
+  padding-left: 20px;
+  padding-right: 60px;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}

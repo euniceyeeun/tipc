@@ -1,0 +1,32 @@
+.route-transition {
+  width: 100%;
+  height: 100%;
+}
+
+.route-transition.fade-in {
+  animation: routeFadeIn 320ms ease forwards;
+}
+
+.route-transition.fade-out {
+  animation: routeFadeOut 220ms ease forwards;
+}
+
+@keyframes routeFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes routeFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
