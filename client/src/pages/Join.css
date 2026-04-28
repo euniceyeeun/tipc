@@ -7,9 +7,6 @@
   align-items: center;
 }
 
-.join-panel {
-}
-
 .join-upload-layout {
   width: min(920px, 100%);
   display: grid;
