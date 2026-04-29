@@ -28,7 +28,6 @@ const ItemSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    owner_email: { type: String, required:true },
     available: { type: Boolean, default: true },
     shape: { type: ShapeSchema, default: undefined },
   },

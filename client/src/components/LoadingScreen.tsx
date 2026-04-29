@@ -23,7 +23,7 @@ export default function LoadingScreen() {
         }}
         />
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-        <p style={{ fontSize: 13, color: "#000" }}>&nbsp;Connecting To Library...</p>
+        <p style={{ fontSize: 13, color: "#000", opacity:"50%" }}>&nbsp;Connecting To Library...</p>
       </div>
       </div>
       <style>{`
