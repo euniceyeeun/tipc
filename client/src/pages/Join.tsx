@@ -359,7 +359,7 @@ function Join() {
 
   const handleLogout = () => {
     setAuth(null);
-    setAuthMessage("Logged out.");
+    // setAuthMessage("Logged out.");
     setAuthMessageType("default");
     setUploadMessage("");
     localStorage.removeItem(AUTH_STORAGE_KEY);

@@ -13,11 +13,12 @@
 }
 
 #search-sort-container {
-  width: 100%;
-  height: 30px;
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
+  gap:20px;
+  width: 100%;
+  height: 30px;
 }
 
 #input-wrapper {
@@ -37,7 +38,7 @@
 
 #search-input {
   height: 30px;
-  width: 320px;
+  width: 230px;
   background-color: #f5f5f5;
   border: none;
   padding: 5px 10px 5px 35px;
@@ -53,18 +54,40 @@
   border: none;
   padding: 5px 10px;
   border-radius: 25px;
+  width:125px;
 }
 
 #sort-input:focus {
   outline: none;
 }
 
+@media only screen and (min-width:768px) {
+
+  #search-input {
+    width: 320px;
+  }
+}
+
 #catalog-items-container {
   margin-top: 30px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  row-gap: 50px;
-  column-gap: 50px;
+  display: flex;
+  flex-flow:column nowrap;
+  gap:100px;
+}
+
+@media only screen and (min-width:568px) {
+  #catalog-items-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 50px;
+    column-gap: 50px;
+  }
+}
+
+@media only screen and (min-width:768px) {
+  #catalog-items-container {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .catalog-item {
