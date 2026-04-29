@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Item = require("../models/Item");
+const User = require("../models/User");
 const requireAuth = require("../middleware/auth");
 
 // GET all items
@@ -23,7 +24,13 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    res.json(item);
+    let owner_email = null;
+    if (item.owner) {
+      const owner = await User.findOne({ name: item.owner }).lean();
+      owner_email = owner?.email ?? null;
+    }
+
+    res.json({ ...item.toObject(), owner_email });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch item" });
@@ -37,7 +44,9 @@ router.post("/", requireAuth, async (req, res) => {
   if (!title || !author_first || !author_last) {
     return res
       .status(400)
-      .json({ error: "Title, author first name, and author last name are required" });
+      .json({
+        error: "Title, author first name, and author last name are required",
+      });
   }
 
   try {

@@ -25,6 +25,7 @@ type Item = {
   author_last: string;
   note: string;
   owner: string;
+  owner_email: string;
   available: boolean;
   shape?: Shape;
 };
@@ -36,7 +37,7 @@ function ItemDetail() {
   useEffect(() => {
     fetch(apiUrl(`/api/items/${id}`))
       .then((res) => res.json())
-      .then((data) => setItem(data))
+       .then((data) => setItem(data))
       .catch(console.error);
   }, [id]);
 
@@ -49,7 +50,7 @@ function ItemDetail() {
       `I would like to request to borrow your copy of ${item.title} by ${item.author_first} ${item.author_last}.\n\n`
     );
 
-    const mailtoLink = `mailto:yeeun02@gmail.com?subject=${subject}&body=${body}`;
+    const mailtoLink = `mailto:${item.owner_email}?subject=${subject}&body=${body}`;
 
     // Open the user's default email client
     window.location.href = mailtoLink;
