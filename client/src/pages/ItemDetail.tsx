@@ -76,11 +76,13 @@ function ItemDetail() {
                 </div>
             </div>
             <div className="item-details-column item-details-column-right">
+              <div className="item-details-available-borrow-mobile">
                 <div className="item-details-availability">{item.available ? "Available" : "Unavailable"}</div>
                 {item.available && <div className="item-details-buttons">
                     <button onClick={sendEmail}>Request To Borrow</button>
                     {/* <button>Save For Later</button> */}
                 </div>}
+                </div>
                 <div className="item-details-terms">
                     Before requesting to borrow, remember to read the <Link to="/terms"><u>terms & conditions</u></Link>.
                 </div>
