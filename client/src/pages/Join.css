@@ -10,13 +10,19 @@
 .join-upload-layout {
   display: flex;
   flex-flow:column nowrap;
-  /* padding-top:200px; */
   margin-top:5em;
   gap:48px;
 }
 
+#login-column {
+  min-height:100dvh;
+  display: flex;
+  flex-flow:column nowrap;
+  gap:18px;
+  justify-content:center;
+}
+
 .join-column {
-  min-height: 0;
   display: flex;
   flex-flow:column nowrap;
   gap:18px;

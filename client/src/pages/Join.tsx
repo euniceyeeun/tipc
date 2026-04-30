@@ -370,7 +370,7 @@ function Join() {
       <div id="join-container" className="content-container">
         <div className="join-panel">
           {!auth ? (
-            <div className="join-column">
+            <div id="login-column">
               <div className="join-heading">
                 {mode === "login" ? "Log In" : "Create an account"}
               </div>
