@@ -70,6 +70,7 @@ function AppShell() {
             setLoading(false);
           })
           .catch((err) => {
+            console.error(err)
             setLoading(false);
           });
       }, []);
