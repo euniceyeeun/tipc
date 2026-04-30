@@ -1,10 +1,8 @@
 #join-container {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   width: 100%;
-  height: 100dvh;
-  justify-content: center;
-  align-items:start;
+  align-items:center;
   overflow:scroll;
   padding-bottom:20px;
 }
@@ -12,9 +10,9 @@
 .join-upload-layout {
   display: flex;
   flex-flow:column nowrap;
-  margin-top:15dvw;
+  /* padding-top:200px; */
+  margin-top:5em;
   gap:48px;
-  align-items:center;
 }
 
 .join-column {
@@ -45,7 +43,7 @@
   display: flex;
   flex-flow:column nowrap;
   gap: 14px;
-  width:330px;
+  width:300px;
 }
 
 .join-field {
@@ -131,9 +129,12 @@
 }
 
 @media (min-width: 900px) {
+
   #join-container {
-    align-items:center;
+    flex-flow:row nowrap;
+    justify-content:center;
   }
+
   .join-upload-layout {
     margin-top:0;
     display:flex;
