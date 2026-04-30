@@ -10,8 +10,10 @@ import ItemDetail from "./pages/ItemDetail";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PageTitle from "./components/PageTitle";
 import pageTitleStyles from "./components/PageTitle.module.css";
+import { apiUrl } from "./lib/api";
 
 function AnimatedRoutes() {
+
   const location = useLocation();
   const [displayLocation, setDisplayLocation] = useState(location);
   const [transitionStage, setTransitionStage] = useState<"fade-in" | "fade-out">("fade-in");
@@ -59,6 +61,19 @@ function AnimatedRoutes() {
 }
 
 function AppShell() {
+  const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+        fetch(apiUrl("/api/items"))
+          .then((res) => res.json())
+          .then(() => {
+            setLoading(false);
+          })
+          .catch((err) => {
+            setLoading(false);
+          });
+      }, []);
+
   const location = useLocation();
   const showPageTitle =
     location.pathname !== "/about";
@@ -69,7 +84,7 @@ function AppShell() {
     <>
       {showPageTitle ? <PageTitle className={pageTitleClassName} /> : null}
       <AnimatedRoutes />
-      <Nav />
+      {!loading && <Nav />}
     </>
   );
 }

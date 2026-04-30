@@ -22,7 +22,7 @@ function Home() {
         });
     }, []);
 
-  if (loading) return <LoadingScreen/>;
+  if (loading) {return <LoadingScreen/>;}
 
   return (
     <>
