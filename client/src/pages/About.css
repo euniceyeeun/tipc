@@ -1,11 +1,17 @@
 #about-container {
-  font-size: 32px;
+  font-size: 25px;
   line-height:125%;
   padding-top: 20px;
   padding-left: 20px;
   padding-right: 100px;
   display: flex;
   flex-flow: column nowrap;
+}
+
+@media only screen and (min-width:400px) {
+  #about-container {
+    font-size:30px;
+  }
 }
 
 @media only screen and (min-width:768px) {
@@ -34,7 +40,7 @@
 
 #about-image img {
   width: 15vw;
-  min-width:200px;
+  min-width:150px;
   transition: filter 0.4s ease-in;
 }
 
