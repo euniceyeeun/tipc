@@ -133,6 +133,7 @@
   background: none;
   opacity: 1;
   transition: opacity 0.2s ease-in;
+  color:black;
 }
 
 .item-details-buttons button:hover {
