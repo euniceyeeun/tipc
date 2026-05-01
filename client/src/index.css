@@ -21,6 +21,11 @@ a {
     display: none;
 }
 
+button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .mobile-shape-container {
   width:100%;
   height:100%;
