@@ -87,7 +87,7 @@ function ItemDetail() {
                     Before requesting to borrow, remember to read the <Link to="/terms"><u>terms & conditions</u></Link>.
                 </div>
                 <button onClick={() => navigate(-1)} className="back-icon">
-                    <FontAwesomeIcon icon={faArrowLeftLong} />
+                    <FontAwesomeIcon className="back-icon" icon={faArrowLeftLong} />
               </button>
             </div>
       </div>
