@@ -10,6 +10,10 @@
   display:block;
 }
 
+a {
+  color:#000;
+}
+
 *{
     -ms-overflow-style: none;
 }

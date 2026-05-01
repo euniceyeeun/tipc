@@ -146,6 +146,12 @@ function Join() {
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 1;
     ctx.stroke();
+      shapePoints.forEach(({ x, y }) => {
+    ctx.beginPath();
+    ctx.arc(x, y, 1, 0, Math.PI * 2);
+    ctx.fillStyle = "black";
+    ctx.fill();
+  });
   }, [shapePoints]);
 
   const validateAuthForm = () => {
