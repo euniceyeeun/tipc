@@ -34,10 +34,6 @@ function AnimatedRoutes() {
   }, [currentPath, displayedPath]);
 
   return (
-    <>
-    <head>
-      <title>Texts In Perennial Circulation</title>
-    </head>
     <div
       className={`route-transition ${transitionStage}`}
       onAnimationEnd={() => {
@@ -56,7 +52,6 @@ function AnimatedRoutes() {
         <Route path="/catalog/item/:id" element={<ItemDetail />} />
       </Routes>
     </div>
-    </>
   );
 }
 
