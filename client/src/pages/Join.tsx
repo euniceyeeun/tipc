@@ -108,7 +108,7 @@ function Join() {
           setAuth(null);
           localStorage.removeItem(AUTH_STORAGE_KEY);
         });
-    } catch (error) {
+    } catch {
       localStorage.removeItem(AUTH_STORAGE_KEY);
     }
   }, []);
@@ -441,7 +441,7 @@ function Join() {
                 }
               >
                 {mode === "login"
-                  ? "Create An Account"
+                  ? "Don't Have An Account? Create One"
                   : "Already Registered? Log In."}
               </button>
               {authMessage ? (

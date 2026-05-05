@@ -85,17 +85,26 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  color:#000000 !important;
+}
+
+.join-form button {
+  border: 1px solid #000;
 }
 
 .join-form button,
 .join-toggle {
   width: fit-content;
-  border: 1px solid #000;
   background: #fff;
   padding: 10px 14px;
   font: inherit;
   cursor: pointer;
   font-size:12px;
+}
+
+.join-toggle {
+  border:none;
+  padding:0;
 }
 
 .join-form button:disabled {

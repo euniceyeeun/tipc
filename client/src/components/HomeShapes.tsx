@@ -11,6 +11,21 @@ type Props = {
   faceInward?: boolean;
 };
 
+function getItemKey(item: Item): string {
+  return `${item._id}-${item.title}-${item.author_first}-${item.author_last}`;
+}
+
+function getStableItemScore(item: Item, seed: number): number {
+  const key = `${seed}-${getItemKey(item)}`;
+  let hash = 0;
+
+  for (let index = 0; index < key.length; index += 1) {
+    hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
+  }
+
+  return hash;
+}
+
 function useMinWidth(minWidth: number): boolean {
   const [matches, setMatches] = useState<boolean>(
     window.matchMedia(`(min-width: ${minWidth}px)`).matches
@@ -44,20 +59,25 @@ export default function HomeShapes({
   const center = centerSize / 2;
 
   const [rotateOffset, setRotateOffset] = useState(0);
+  const [mobileRotateOffset, setMobileRotateOffset] = useState(0);
+  const [displaySeed] = useState(() => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
   const targetRef = useRef(0); // 👈 where we want to go
+  const mobileTargetRef = useRef(0);
+  const mobileCurrentRef = useRef(0);
+  const mobileSettleTimeoutRef = useRef<number | null>(null);
+  const mobileTouchYRef = useRef(0);
   const isDesktop = useMinWidth(768);
 
-  // Select 6 random items
-  const randomItems = useMemo(() => {
-    const shuffled = [...items].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 6);
-  }, [items]);
+  const displayItems = useMemo(() => {
+    return [...items]
+      .sort(
+        (firstItem, secondItem) =>
+          getStableItemScore(firstItem, displaySeed) - getStableItemScore(secondItem, displaySeed)
+      )
+      .slice(0, 6);
+  }, [displaySeed, items]);
 
-  const randomItem = useMemo(() => {
-  if (!items.length) return null;
-  const index = Math.floor(Math.random() * items.length);
-  return items[index];
-}, [items]);
+  const mobileItem = displayItems[0] ?? null;
 
   // Wheel updates TARGET (not state directly)
   useEffect(() => {
@@ -101,6 +121,95 @@ useEffect(() => {
   }
 }, [isDesktop]);
 
+useEffect(() => {
+  if (isDesktop) {
+    mobileTargetRef.current = 0;
+    mobileCurrentRef.current = 0;
+    setMobileRotateOffset(0);
+    return;
+  }
+
+  const rotateMobileShape = (delta: number) => {
+    if (Math.abs(delta) < 1.5) {
+      return;
+    }
+
+    const cappedDelta = Math.max(-18, Math.min(18, delta));
+    mobileTargetRef.current += cappedDelta * 0.5;
+
+    if (mobileSettleTimeoutRef.current) {
+      window.clearTimeout(mobileSettleTimeoutRef.current);
+    }
+
+    mobileSettleTimeoutRef.current = window.setTimeout(() => {
+      mobileTargetRef.current = mobileCurrentRef.current;
+    }, 90);
+  };
+
+  const handleWheel = (event: WheelEvent) => {
+    rotateMobileShape(event.deltaY);
+  };
+
+  const handleTouchStart = (event: TouchEvent) => {
+    if (event.touches.length === 0) {
+      return;
+    }
+
+    mobileTouchYRef.current = event.touches[0].clientY;
+  };
+
+  const handleTouchMove = (event: TouchEvent) => {
+    if (event.touches.length === 0) {
+      return;
+    }
+
+    const nextTouchY = event.touches[0].clientY;
+    rotateMobileShape(mobileTouchYRef.current - nextTouchY);
+    mobileTouchYRef.current = nextTouchY;
+  };
+
+  window.addEventListener("wheel", handleWheel, { passive: true });
+  window.addEventListener("touchstart", handleTouchStart, { passive: true });
+  window.addEventListener("touchmove", handleTouchMove, { passive: true });
+
+  return () => {
+    window.removeEventListener("wheel", handleWheel);
+    window.removeEventListener("touchstart", handleTouchStart);
+    window.removeEventListener("touchmove", handleTouchMove);
+
+    if (mobileSettleTimeoutRef.current) {
+      window.clearTimeout(mobileSettleTimeoutRef.current);
+    }
+  };
+}, [isDesktop]);
+
+useEffect(() => {
+  if (isDesktop) return;
+
+  let frame: number;
+
+  const animate = () => {
+    setMobileRotateOffset((currentOffset) => {
+      const diff = mobileTargetRef.current - currentOffset;
+
+      if (Math.abs(diff) < 0.02) {
+        mobileCurrentRef.current = mobileTargetRef.current;
+        return mobileTargetRef.current;
+      }
+
+      const nextOffset = currentOffset + diff * 0.16;
+      mobileCurrentRef.current = nextOffset;
+      return nextOffset;
+    });
+
+    frame = requestAnimationFrame(animate);
+  };
+
+  animate();
+
+  return () => cancelAnimationFrame(frame);
+}, [isDesktop]);
+
   return (
     <>
       <div className="mobile-shape-container mobile-only">
@@ -111,16 +220,18 @@ useEffect(() => {
             height: itemSize,
           }}
         >
-          {randomItem && (
+          {mobileItem && (
             <div
-              key={randomItem._id}
+              key={mobileItem._id}
               style={{
                 width: itemSize,
-                height: itemSize
+                height: itemSize,
+                transform: `rotate(${mobileRotateOffset}deg)`,
+                transformOrigin: "center",
               }}
             >
-              <Link to={`/catalog/item/${randomItem._id}`}>
-                <ItemShape shape={randomItem.shape} size={itemSize} />
+              <Link to={`/catalog/item/${mobileItem._id}`}>
+                <ItemShape shape={mobileItem.shape} size={itemSize} />
               </Link>
             </div>
           )}
@@ -135,8 +246,8 @@ useEffect(() => {
           margin: "0 auto",
         }}
       >
-        {randomItems.map((item, index) => {
-          const angle = (index / randomItems.length) * 360 + rotateOffset;
+        {displayItems.map((item, index) => {
+          const angle = (index / displayItems.length) * 360 + rotateOffset;
           const rotation = faceInward ? angle + 180 : angle;
 
           return (
