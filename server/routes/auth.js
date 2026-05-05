@@ -7,10 +7,18 @@ const requireAuth = require("../middleware/auth");
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, signupCode } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: "Name, email, and password are required" });
+  if (!name || !email || !password || !signupCode) {
+    return res.status(400).json({ error: "Name, email, password, and signup code are required" });
+  }
+
+  if (!process.env.SIGNUP_CODE) {
+    return res.status(503).json({ error: "Account creation is not configured" });
+  }
+
+  if (signupCode !== process.env.SIGNUP_CODE) {
+    return res.status(403).json({ error: "Invalid signup code" });
   }
 
   if (password.length < 8) {

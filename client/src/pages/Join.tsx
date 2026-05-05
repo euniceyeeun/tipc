@@ -35,6 +35,7 @@ type AuthErrors = {
   name?: string;
   email?: string;
   password?: string;
+  signupCode?: string;
 };
 
 type UploadErrors = {
@@ -52,6 +53,7 @@ function Join() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signupCode, setSignupCode] = useState("");
   const [auth, setAuth] = useState<AuthState | null>(null);
   const [authMessage, setAuthMessage] = useState("");
   const [authMessageType, setAuthMessageType] = useState<"default" | "error">("default");
@@ -161,6 +163,10 @@ function Join() {
       nextErrors.name = "Please enter your name.";
     }
 
+    if (mode === "register" && !signupCode.trim()) {
+      nextErrors.signupCode = "Please enter the signup code.";
+    }
+
     if (!email.trim()) {
       nextErrors.email = "Please enter your email address.";
     } else if (!/\S+@\S+\.\S+/.test(email.trim())) {
@@ -218,7 +224,7 @@ function Join() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...(mode === "register" ? { name } : {}),
+          ...(mode === "register" ? { name, signupCode: signupCode.trim() } : {}),
           email,
           password,
         }),
@@ -237,6 +243,7 @@ function Join() {
         setName("");
         setEmail("");
         setPassword("");
+        setSignupCode("");
         setAuthErrors({});
         return;
       }
@@ -253,6 +260,7 @@ function Join() {
       setName("");
       setEmail("");
       setPassword("");
+      setSignupCode("");
       setAuthErrors({});
     } catch (error) {
       const message =
@@ -378,9 +386,9 @@ function Join() {
           {!auth ? (
             <div id="login-column">
               <div className="join-heading">
-                {mode === "login" ? "Log In" : "Create an account"}
+                {mode === "login" ? "Log In" : "Create Account"}
               </div>
-              <form className="join-form" onSubmit={handleAuthSubmit} noValidate>
+              <form className="join-form join-auth-form" onSubmit={handleAuthSubmit} noValidate>
                 {mode === "register" ? (
                   <label className="join-field">
                     <span>Name</span>
@@ -424,8 +432,24 @@ function Join() {
                   {authErrors.password ? (
                     <span className="join-error">{authErrors.password}</span>
                   ) : null}
+                  {mode === "register" ? (
+                  <label className="join-field">
+                    <span>Code</span>
+                    <input
+                      type="password"
+                      value={signupCode}
+                      onChange={(event) => {
+                        setSignupCode(event.target.value);
+                        setAuthErrors((current) => ({ ...current, signupCode: undefined }));
+                      }}
+                    />
+                    {authErrors.signupCode ? (
+                      <span className="join-error">{authErrors.signupCode}</span>
+                    ) : null}
+                  </label>
+                ) : null}
                 </label>
-                <button type="submit" disabled={isAuthSubmitting}>
+                <button type="submit" className="join-submit" disabled={isAuthSubmitting}>
                   {isAuthSubmitting
                     ? "Submitting..."
                     : mode === "login"
@@ -433,19 +457,23 @@ function Join() {
                       : "Create Account"}
                 </button>
               </form>
-              <button
-                type="button"
-                className="join-toggle"
-                onClick={() =>
-                  setMode((current) => (current === "login" ? "register" : "login"))
-                }
-              >
-                {mode === "login"
-                  ? "Don't Have An Account? Create One"
-                  : "Already Registered? Log In."}
-              </button>
+              <div className="join-toggle-copy">
+                {mode === "login" ? "Don't Have An Account? " : "Already Registered? "}
+                <button
+                  type="button"
+                  className="join-toggle"
+                  onClick={() => {
+                    setAuthErrors({});
+                    setAuthMessage("");
+                    setSignupCode("");
+                    setMode((current) => (current === "login" ? "register" : "login"));
+                  }}
+                >
+                  {mode === "login" ? "Create One" : "Log In"}
+                </button>
+              </div>
               {authMessage ? (
-                <div className={authMessageType === "error" ? "join-error" : "join-message"}>
+                <div className={authMessageType === "error" ? "join-error" : "join-message join-auth-message"}>
                   {authMessage}
                 </div>
               ) : null}

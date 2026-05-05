@@ -39,6 +39,10 @@
   line-height: 1.5;
 }
 
+.join-auth-message {
+  font-size: 12px;
+}
+
 .join-error {
   color: #b00020;
   font-size: 11px;
@@ -50,6 +54,10 @@
   flex-flow:column nowrap;
   gap: 14px;
   width:300px;
+}
+
+.join-auth-form {
+  gap: 16px;
 }
 
 .join-field {
@@ -102,9 +110,19 @@
   font-size:12px;
 }
 
+.join-submit {
+  margin: 0;
+}
+
+.join-toggle-copy {
+  font-size: 12px;
+}
+
 .join-toggle {
+  background: transparent;
   border:none;
   padding:0;
+  text-decoration: underline;
 }
 
 .join-form button:disabled {

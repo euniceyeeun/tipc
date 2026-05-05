@@ -38,6 +38,10 @@ if (!process.env.JWT_SECRET) {
   console.warn("JWT_SECRET is not set. Auth routes will not work until it is configured.");
 }
 
+if (!process.env.SIGNUP_CODE) {
+  console.warn("SIGNUP_CODE is not set. Account creation will be disabled until it is configured.");
+}
+
 app.use("/api/items", itemRoutes);
 app.use("/api/auth", authRoutes);
 
