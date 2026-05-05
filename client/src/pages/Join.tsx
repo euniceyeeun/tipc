@@ -1,6 +1,12 @@
+import "./Catalog.css";
 import "./Join.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeftLong, faSearch } from "@fortawesome/free-solid-svg-icons";
+import ItemShape from "../components/ItemShape";
+import ItemDetailEdit from "../components/ItemDetailEdit";
 import { apiUrl } from "../lib/api";
+import type { Item } from "../types/Item";
 
 type AuthUser = {
   id: string;
@@ -50,11 +56,16 @@ const SHAPE_CANVAS_SIZE = 320;
 function Join() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [accountView, setAccountView] = useState<"overview" | "add" | "edit">("overview");
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [signupCode, setSignupCode] = useState("");
   const [auth, setAuth] = useState<AuthState | null>(null);
+  const [myItems, setMyItems] = useState<Item[]>([]);
+  const [myItemsSearchTerm, setMyItemsSearchTerm] = useState("");
+  const [isMyItemsLoading, setIsMyItemsLoading] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
   const [authMessageType, setAuthMessageType] = useState<"default" | "error">("default");
   const [uploadMessage, setUploadMessage] = useState("");
@@ -70,6 +81,20 @@ function Join() {
     available: true,
   });
   const [shapePoints, setShapePoints] = useState<Point[]>([]);
+
+  const visibleMyItems = useMemo(() => {
+    const term = myItemsSearchTerm.toLowerCase();
+
+    return myItems
+      .filter((item) => {
+        return (
+          item.title?.toLowerCase().includes(term) ||
+          item.author_first?.toLowerCase().includes(term) ||
+          item.author_last?.toLowerCase().includes(term)
+        );
+      })
+      .sort((firstItem, secondItem) => firstItem.title.localeCompare(secondItem.title));
+  }, [myItems, myItemsSearchTerm]);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
@@ -114,6 +139,50 @@ function Join() {
       localStorage.removeItem(AUTH_STORAGE_KEY);
     }
   }, []);
+
+  useEffect(() => {
+    if (!auth) {
+      setMyItems([]);
+      setMyItemsSearchTerm("");
+      setSelectedItem(null);
+      setAccountView("overview");
+      return;
+    }
+
+    let ignore = false;
+    setIsMyItemsLoading(true);
+
+    fetch(apiUrl("/api/items"))
+      .then((response) => response.json())
+      .then((items: Item[]) => {
+        if (ignore) {
+          return;
+        }
+
+        setMyItems(
+          items.filter(
+            (item) =>
+              item.ownerUserId === auth.user.id || item.owner === auth.user.name
+          )
+        );
+      })
+      .catch((error) => {
+        console.error(error);
+
+        if (!ignore) {
+          setMyItems([]);
+        }
+      })
+      .finally(() => {
+        if (!ignore) {
+          setIsMyItemsLoading(false);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [auth]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -257,6 +326,7 @@ function Join() {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextAuth));
       setAuthMessage("Logged in successfully.");
       setAuthMessageType("default");
+      setAccountView("overview");
       setName("");
       setEmail("");
       setPassword("");
@@ -353,6 +423,7 @@ function Join() {
       }
 
       setUploadMessage(`Uploaded "${data.title}" to the catalog.`);
+      setMyItems((currentItems) => [data, ...currentItems]);
       setItemForm({
         title: "",
         author_first: "",
@@ -362,6 +433,7 @@ function Join() {
       });
       setShapePoints([]);
       setUploadErrors({});
+      setAccountView("overview");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to upload item";
@@ -375,14 +447,31 @@ function Join() {
     setAuth(null);
     // setAuthMessage("Logged out.");
     setAuthMessageType("default");
+    setAccountView("overview");
+    setSelectedItem(null);
+    setMyItems([]);
+    setMyItemsSearchTerm("");
     setUploadMessage("");
     localStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
   return (
     <>
-      <div id="join-container" className="content-container">
-        <div className="join-panel">
+      <div
+        id="join-container"
+        className={
+          auth && (accountView === "overview" || accountView === "edit")
+            ? "content-container join-container-overview"
+            : "content-container"
+        }
+      >
+        <div
+          className={
+            auth && (accountView === "overview" || accountView === "edit")
+              ? "join-panel join-panel-overview"
+              : "join-panel"
+          }
+        >
           {!auth ? (
             <div id="login-column">
               <div className="join-heading">
@@ -432,7 +521,8 @@ function Join() {
                   {authErrors.password ? (
                     <span className="join-error">{authErrors.password}</span>
                   ) : null}
-                  {mode === "register" ? (
+                </label>
+                {mode === "register" ? (
                   <label className="join-field">
                     <span>Code</span>
                     <input
@@ -448,7 +538,6 @@ function Join() {
                     ) : null}
                   </label>
                 ) : null}
-                </label>
                 <button type="submit" className="join-submit" disabled={isAuthSubmitting}>
                   {isAuthSubmitting
                     ? "Submitting..."
@@ -478,6 +567,109 @@ function Join() {
                 </div>
               ) : null}
             </div>
+          ) : accountView === "overview" ? (
+            <div className="join-overview">
+              <div className="join-overview-header">
+                <div className="join-welcome">
+                  Welcome <strong>{auth.user.name}</strong>.
+                </div>
+                <div className="join-overview-actions">
+                  {/* <button type="button" className="join-pill-button">
+                    Account Details
+                  </button> */}
+                  <button
+                    type="button"
+                    className="join-pill-button"
+                    onClick={handleLogout}
+                  >
+                    Log Out
+                  </button>
+                </div>
+              </div>
+
+              <div className="join-my-texts-header">
+                <div className="join-my-texts-title">My Texts</div>
+                <div className="join-my-texts-tools">
+                  <button
+                    type="button"
+                    className="join-add-text-button"
+                    onClick={() => {
+                      setUploadMessage("");
+                      setAccountView("add");
+                    }}
+                  >
+                    <span className="join-add-text-button-plus"><strong>+&nbsp;</strong></span>
+                    <span>Add Text</span>
+                  </button>
+                  <div id="input-wrapper">
+                    <span id="input-icon">
+                      <FontAwesomeIcon icon={faSearch} />
+                    </span>
+                    <input
+                      type="text"
+                      placeholder=""
+                      id="search-input"
+                      value={myItemsSearchTerm}
+                      onChange={(event) => setMyItemsSearchTerm(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {isMyItemsLoading ? (
+                <div className="join-message join-overview-message">Loading texts...</div>
+              ) : null}
+
+              {!isMyItemsLoading && visibleMyItems.length === 0 ? (
+                <div className="join-message join-overview-message">No texts yet.</div>
+              ) : null}
+
+              <div id="catalog-items-container" className="join-my-texts-grid">
+                {visibleMyItems.map((item) => {
+                  return (
+                    <button
+                      type="button"
+                      className="join-my-text-card"
+                      key={item._id}
+                      onClick={() => {
+                        setSelectedItem(item);
+                        setAccountView("edit");
+                      }}
+                    >
+                      <div className="catalog-item">
+                        <div className="catalog-item-title">{item.title}</div>
+                        <div className="catalog-item-shape">
+                          <ItemShape shape={item.shape} size={200} />
+                        </div>
+                        <div className="catalog-item-author">
+                          {item.author_first}&nbsp;{item.author_last}
+                        </div>
+                        <div className="catalog-item-available">
+                          {item.available ? "Available" : "Unavailable"}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : accountView === "edit" && selectedItem ? (
+            <ItemDetailEdit
+              item={selectedItem}
+              token={auth.token}
+              onBack={() => {
+                setSelectedItem(null);
+                setAccountView("overview");
+              }}
+              onSaved={(updatedItem) => {
+                setSelectedItem(updatedItem);
+                setMyItems((currentItems) =>
+                  currentItems.map((item) =>
+                    item._id === updatedItem._id ? updatedItem : item
+                  )
+                );
+              }}
+            />
           ) : (
             <div className="join-upload-layout">
               <div className="join-column">
@@ -544,9 +736,6 @@ function Join() {
                     <button type="submit" disabled={isUploadSubmitting}>
                       {isUploadSubmitting ? "Uploading..." : "Upload Item"}
                     </button>
-                    <button type="button" className="join-secondary" onClick={handleLogout}>
-                      Log Out
-                    </button>
                   </div>
                 </form>
                 {uploadMessage ? <div className="join-message">{uploadMessage}</div> : null}
@@ -560,7 +749,7 @@ function Join() {
                   className="join-shape-canvas"
                   onClick={handleCanvasClick}
                 />
-                <div className="join-actions">
+                <div className="join-actions join-shape-actions">
                   <button
                     type="button"
                     className="join-secondary"
@@ -568,6 +757,17 @@ function Join() {
                     disabled={shapePoints.length === 0}
                   >
                     Reset Shape
+                  </button>
+                  <button
+                    type="button"
+                    className="join-back-overview-button"
+                    onClick={() => {
+                      setUploadMessage("");
+                      setAccountView("overview");
+                    }}
+                    aria-label="Return to overview"
+                  >
+                    <FontAwesomeIcon icon={faArrowLeftLong} />
                   </button>
                 </div>
               </div>

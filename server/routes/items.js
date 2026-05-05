@@ -69,4 +69,34 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
+// PATCH item details owned by the current user
+router.patch("/:id", requireAuth, async (req, res) => {
+  const { note, available } = req.body;
+
+  try {
+    const item = await Item.findById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    if (item.ownerUserId.toString() !== req.user.userId) {
+      return res.status(403).json({ error: "You can only edit your own items" });
+    }
+
+    if (typeof note === "string") {
+      item.note = note.trim();
+    }
+
+    item.available =
+  typeof available === "boolean" ? available : item.available;
+
+    await item.save();
+    res.json(item);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update item" });
+  }
+});
+
 module.exports = router;

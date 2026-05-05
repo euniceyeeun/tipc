@@ -57,6 +57,7 @@ function Catalog() {
                 const term = searchTerm.toLowerCase();
                 return (
                   item.title?.toLowerCase().includes(term) ||
+                  item.author_first?.toLowerCase().includes(term) ||
                   item.author_last?.toLowerCase().includes(term)
                 );
               })

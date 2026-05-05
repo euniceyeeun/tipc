@@ -15,6 +15,7 @@ export type Item = {
   author_last: string;
   note: string;
   owner: string;
+  ownerUserId?: string;
   available: boolean;
   shape?: Shape;
 };
